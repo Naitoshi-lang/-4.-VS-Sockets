@@ -1,3 +1,4 @@
+# Сервер
 import socket
 import datetime
 import select
@@ -45,3 +46,33 @@ def start_async_server():
 
 if __name__ == "__main__":
     start_async_server()
+
+
+# Клиент
+
+import socket
+import datetime
+import select
+
+def start_async_client():
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect(('localhost', 12347))
+    client_socket.setblocking(False)
+    
+    # Отправляем сообщение
+    message = "Привет, сервер!"
+    client_socket.send(message.encode('utf-8'))
+    
+    # Ожидаем ответ с таймаутом
+    ready = select.select([client_socket], [], [], 10)
+    if ready[0]:
+        response = client_socket.recv(1024).decode('utf-8')
+        current_time = datetime.datetime.now().strftime("%H:%M")
+        print(f"В {current_time} от [localhost] получена строка: {response}")
+    else:
+        print("Таймаут ожидания ответа")
+    
+    client_socket.close()
+
+if __name__ == "__main__":
+    start_async_client()
